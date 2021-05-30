@@ -3,11 +3,14 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
+const char* ssid = "";
+const char* password = "";
+
 ESP8266WebServer server(80);
 
 int LED = 16;
-int LED_OFF = 0;
-int LED_ON = 1;
+int LED_OFF = HIGH;
+int LED_ON = LOW;
 
 void sendHtml(String url){
     String html = "";
@@ -21,6 +24,9 @@ void setup() {
     pinMode(LED, OUTPUT);
     digitalWrite(LED, LED_OFF);
     Serial.begin(115200);
+
+    WiFi.mode(WIFI_STA);
+	WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -38,13 +44,21 @@ void setup() {
     }
 
     server.on("/", []() {
-        sendHtml("");
+        sendHtml("https://raw.githubusercontent.com/nsms556/Toy/main/webControllerTest/led.html");
     });
     server.on("/on", []() {
         digitalWrite(LED, LED_ON);
-        sendHtml("");
+        sendHtml("https://raw.githubusercontent.com/nsms556/Toy/main/webControllerTest/led.html");
     });
     server.on("/off", []() {
-        sendHtml("");
+        digitalWrite(LED, LED_OFF);
+        sendHtml("https://raw.githubusercontent.com/nsms556/Toy/main/webControllerTest/led.html");
     });
+
+    server.begin();
+    Serial.println("HTTP Server started");
+}
+
+void loop() {
+    server.handleClient();
 }
